@@ -83,7 +83,7 @@ def select_client(server, port):
 
 
 def encrypt(public_key, message):
-    key = RSA.importKey(public_key)
+    key = RSA.import_key(public_key)
     cipherKey = PKCS1_OAEP.new(key)
     encrypted_blocks = []
     for i in range(0, len(message), 128):
@@ -98,7 +98,7 @@ def decrypt(private_key, encrypted_string):
         print(colored.yellow("Found Empty."))
         return
     encrypted_units = encrypted_string.split("BREAK#HERE")
-    key = RSA.importKey(private_key)
+    key = RSA.import_key(private_key)
     cipherKey = PKCS1_OAEP.new(key)
     for encrypted_blocks in encrypted_units:
         clearText = ""
