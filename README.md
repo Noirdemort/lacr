@@ -6,4 +6,4 @@ Http Polling for message retrieval.
 
 # Issues
     - CLI Doesn;t show arrows after receiving a message but functionality is still there
- 
+    - Handle Https using requests locally
