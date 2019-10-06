@@ -10,3 +10,4 @@ Http Polling for message retrieval.
 
 # Extend
     - Add file sending support
+    - switch crytography to [libsodium](https://download.libsodium.org/doc/) library
