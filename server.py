@@ -2,6 +2,11 @@ from flask import Flask, request, session
 import os
 from werkzeug.utils import secure_filename
 import socket
+# from OpenSSL import SSL
+
+# context = SSL.Context(SSL.TLSv1_2_METHOD)
+# context.use_privatekey_file('key.pem')
+# context.use_certificate_file('cert.pem')
 
 app = Flask(__name__)
 app.secret_key = os.urandom(24)
@@ -69,4 +74,6 @@ def delete_user(ida):
 
 
 if __name__=='__main__':
-    app.run(port=5000, debug=True) 
+    port = int(os.environ.get('PORT', 5000))
+    # app.run(host='127.0.0.1', port=port, ssl_context=('cert.pem', 'key.pem'))
+    app.run(host='127.0.0.1', port=port)
