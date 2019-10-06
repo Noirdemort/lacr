@@ -19,11 +19,11 @@ def random_salt():
 
 
 def gen_keys():
-    '''os.system("mkdir -p $HOME/.winds")
+    os.system("mkdir -p $HOME/.winds")
     os.system("openssl genrsa -out $HOME/.winds/private.pem 4096")
     os.system(
         "openssl rsa -in $HOME/.winds/private.pem -outform PEM -pubout -out $HOME/.winds/public.pem"
-    )'''
+    )
     with open(home + "/.winds/private.pem", "r") as file:
         private_key = file.read()
     print(colored.green("[+] Keys Generated successfully!"))
