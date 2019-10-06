@@ -1,15 +1,21 @@
 import sys
 import os
 import pathlib
+import base64
 from pathlib import Path
 import select
 from threading import Thread
+from getpass import getpass
 import requests
 import polling
 
 from clint.textui import colored  # printing colored text
 from Crypto.Cipher import PKCS1_OAEP
 from Crypto.PublicKey import RSA
+
+def random_salt():
+    iv = os.urandom(64)
+    return str(int.from_bytes(iv, byteorder="big"))
 
 
 def gen_keys():
@@ -130,12 +136,40 @@ def send_message(message, friend, public_key, username):
         print(colored.green(f"You >> {message}"))
     else:
         print(colored.red(f"You >> {message} : Some Error Occured"))
+
+
+def send_file(filepath, friend, username, orig):
+    files = {'upload_file': open(filepath,'rb')}
+    r = requests.post(f"http://{server}:{port}/filePayload", files=files, data={"recipient": friend, "author": username, "filename": filepath.replace(' ', '_')})
+    
+    if r.status_code == 200:
+        print(colored.green("[+] File Uploaded Successfully!!"))
+        os.system(f"rm {orig}")
+    else:
+        print(colored.red("[-] Some Error Occured. File Upload Unsuccessfull!"))
         
 
 def resp(response):
     if response == True:
         msg = requests.get(f'http://{server}:{port}/getMyLast', data= {'username': username}).text
         decrypt(private_key, msg)
+
+
+def respF(response):
+    if response == True:
+        print(colored.yellow("[*] Intercepted a file. Downloading..."))
+        msg = requests.get(f'http://{server}:{port}/getPayload', data= {'username': username}).text
+        file_data, filename = msg.split("FILEBREAK")
+        file_bytes = base64.b64decode(file_data.encode())
+        filename = filename.split(".enc")[0]
+        with open(filename, 'wb') as f:
+            f.write(file_bytes)
+        # os.system(f"openssl rsautl -decrypt -inkey $HOME/.winds/private.pem -in {filename} -out $HOME/Downloads/{filename}")
+        print(colored.magenta("\nLook or ask for DECRYPTION_PHRASE key in secure chat"))
+        print(colored.red(">> Press ENTER/ RETURN and then Enter decryption password in next line: "))
+        os.system(f"openssl aes-256-cbc -d -salt -pbkdf2 -in {filename} -out $HOME/Downloads/{filename}")
+        os.system(f"rm {filename}")
+        print(colored.magenta("[+] File saved in downloads folder."))
 
 
 def recv_msgs(arg):
@@ -145,6 +179,14 @@ def recv_msgs(arg):
              lambda: requests.get(f'http://{server}:{port}/isThereAMessage', data={'username': username}).status_code == 200,
              check_success=resp,
              step=2,
+             poll_forever=True)
+
+
+def recv_files(arg):
+    polling.poll(
+             lambda: requests.get(f'http://{server}:{port}/checkPayload', data={'username': username}).status_code == 200,
+             check_success=respF,
+             step=5,
              poll_forever=True)
            
 
@@ -171,8 +213,10 @@ stop = False
 thread = Thread(target = recv_msgs, args =(lambda: stop, ))
 thread.start()
 
+thread_file = Thread(target = recv_files, args =(lambda: stop, ))
+thread_file.start()
 
-while 1:
+while True:
     message = input(colored.cyan(f"[{friend}:] >>> ")).strip()
     
     if message == ":change":
@@ -181,7 +225,20 @@ while 1:
     elif message == ":get":
         msg = requests.get(f'http://{server}:{port}/getMyLast', data= {'username': username}).text
         decrypt(private_key, msg)
-        
+    
+    elif message == ":se":
+        file_path = input(colored.yellow("\tDrag and Drop file here: ")).strip()
+        filename = file_path.split("/")[-1]
+        os.system(f"openssl aes-256-cbc -salt -pbkdf2 -in {file_path} -out {filename}.enc")
+        dep_key = getpass("Enter Key once more for signing: ")
+        print(colored.magenta("NOTE: Share key over secure channel."))
+        # os.system(f"openssl rsautl -encrypt -inkey public.pem  -pubin -in {file_path} -out {filename}.enc")
+        original_name = filename + '.enc'
+        if '\\' in filename:
+            filename = filename.replace('\\','')
+        send_file(filename+'.enc', friend, username, original_name)
+        send_message(f"DECRYPTION_PHRASE: {dep_key}", friend, public_key, username)
+    
     elif message == ":q":
         requests.post(f"http://{server}:{port}/delete/{username}")
         stop = True
