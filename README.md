@@ -4,6 +4,8 @@ Uses RSA to secure communications via temporary channels.
 Http Polling for message retrieval.
 Added file transfer support
 
+#TODO:
+    - Write some USAGE Documentation.
 
 # Issues
     - CLI Doesn't show arrows after receiving a message but functionality is still there
