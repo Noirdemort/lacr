@@ -1,6 +1,6 @@
 clint==0.5.1
 Flask==1.0.2
-cryptography==2.6.1
+cryptography==3.2.0
 pycryptodome>=3.9.0
 pycryptodomex>=3.9.0
 polling==0.3.1

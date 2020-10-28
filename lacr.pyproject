@@ -1,0 +1,4 @@
+{
+    "files": ["LICENSE", "cert.pem", "key.pem", "server.py", "README.md", "cli.py", "requirements.txt", "setup.sh", "tmp_payloads/admiral.pem", "tmp_payloads/wolf.pem"]
+}
+

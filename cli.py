@@ -13,6 +13,7 @@ from clint.textui import colored  # printing colored text
 from Crypto.Cipher import PKCS1_OAEP
 from Crypto.PublicKey import RSA
 
+
 def random_salt():
     iv = os.urandom(64)
     return str(int.from_bytes(iv, byteorder="big"))
