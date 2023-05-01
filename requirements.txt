@@ -1,5 +1,5 @@
 clint==0.5.1
-Flask==1.0.2
+Flask==2.3.2
 cryptography==3.3.2
 pycryptodome>=3.9.0
 pycryptodomex>=3.9.0
